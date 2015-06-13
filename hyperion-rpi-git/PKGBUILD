@@ -59,7 +59,6 @@ package() {
   install -Dm755 "bin/hyperiond" "${pkgdir}/usr/bin/hyperiond"
   install -Dm755 "bin/hyperion-remote" "${pkgdir}/usr/bin/hyperion-remote"
   install -Dm755 "bin/hyperion-v4l2" "${pkgdir}/usr/bin/hyperion-v4l2"
-  install -Dm755 "bin/hyperion-x11" "${pkgdir}/usr/bin/hyperion-x11"
 
   install -m 644 "config/hyperion.config.json" "${pkgdir}/etc/conf.d/hyperion.config.json"
 
