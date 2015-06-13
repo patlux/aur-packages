@@ -1,4 +1,6 @@
 # Maintainer: Patrick Wozniak <hello@patwoz.de>
+# based on https://aur.archlinux.org/packages/hyperion-git/
+# modified for raspberry pi
 
 pkgname=hyperion-rpi-git
 pkgver=20150611.r666.e93bd2f
@@ -22,35 +24,37 @@ conflicts=(
 )
 
 source=(
-  "${pkgname%-git}::git+https://github.com/tvdzwan/hyperion.git#branch=master"
+  "${pkgname%-rpi-git}::git+https://github.com/tvdzwan/hyperion.git#branch=master"
+  "hyperiond.service"
   "LICENSE"
 )
 sha256sums=(
   'SKIP'
+  'aab12fb3d901ea4c8694bd713b1a2187beae6a6ed40f3355d12fc7ad50aaf3fe'
   '85f28018f946ca13b6de640c45e011cd9fe56114d474cb990d4d1ff91ae1cd60'
 )
 
 pkgver() {
-  cd "${pkgname%-git}"
+  cd "${pkgname%-rpi-git}"
   printf "%s.r%s.%s" "$(date +%Y%m%d)" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 build() {
-  cd "${pkgname%-git}"
+  cd "${pkgname%-rpi-git}"
 
   # https://github.com/tvdzwan/hyperion/blob/master/CompileHowto.txt
   git submodule init
   git submodule update
-  cmake ./ -DENABLE_DISPMANX=OFF -DENABLE_SPIDEV=OFF -DENABLE_X11=ON -DENABLE_PROTOBUF=OFF
+  cmake ./
   make
 }
 
 package() {
-  install -Dm644 "LICENSE" "$pkgdir/usr/share/licenses/${pkgname%-git}/LICENSE"
+  install -Dm644 "LICENSE" "$pkgdir/usr/share/licenses/${pkgname%-rpi-git}/LICENSE"
 
-  cd "${pkgname%-git}"
+  cd "${pkgname%-rpi-git}"
 
-  install -d "${pkgdir}"/{usr/bin,etc/conf.d,usr/lib/systemd/system,opt/hyperion}
+  install -d "${pkgdir}/opt/hyperion"
 
   install -Dm755 "bin/hyperiond" "${pkgdir}/usr/bin/hyperiond"
   install -Dm755 "bin/hyperion-remote" "${pkgdir}/usr/bin/hyperion-remote"
@@ -59,11 +63,7 @@ package() {
 
   install -m 644 "config/hyperion.config.json" "${pkgdir}/etc/conf.d/hyperion.config.json"
 
+  install -m 644 hyperiond.service "${pkgdir}/usr/lib/systemd/system/"
+
   cp -r "effects" "${pkgdir}/opt/hyperion/"
-
-  # sudo cp ./bin/hyperion-remote /usr/bin/
-  # sudo cp ./bin/hyperiond /usr/bin/
-
-  # install -Dm755 "mpw" "$pkgdir/usr/bin/mpw"
-
 }
